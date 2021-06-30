@@ -91,9 +91,51 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    searched = [source]
+    search_frontier = QueueFrontier()
+    source_node = Node(state=source, parent=None, action=None)
 
-    # TODO
-    raise NotImplementedError
+    # Add neighbors of source to frontier
+    for neighbor in neighbors_for_person(source):
+
+        neighbor_node = Node(state=neighbor[1], parent=source_node, action=neighbor[0])
+
+        # If a neighbor is the target return the path, otherwise add to the frontier
+        if neighbor[1] == target:
+            return get_path(neighbor_node)
+        else:
+            search_frontier.add(node=neighbor_node)
+
+    # Until there are no further nodes to search or target is found
+    while not(search_frontier.empty()):
+
+        # Get neighbors of next node in frontier and 
+        next_node = search_frontier.remove()
+
+        for neighbor in neighbors_for_person(next_node.state):
+            neighbor_node = Node(state=neighbor[1], parent=next_node, action=neighbor[0])
+            # If a neighbor is the target return the path, otherwise add to the frontier
+            if neighbor[1] == target:
+                return get_path(neighbor_node)
+            elif not(neighbor[1] in searched):
+                search_frontier.add(neighbor_node)
+                searched.append(neighbor[1])
+            else:
+                pass
+
+    # All paths searched and target not found
+    return None
+
+def get_path(node):
+    """
+    Returns the path from the node back to the start
+    """
+    if node.parent is None:
+        return []
+    else:
+        path = [(node.action, node.state)] + get_path(node.parent)
+        path.reverse()
+        return path
 
 
 def person_id_for_name(name):
